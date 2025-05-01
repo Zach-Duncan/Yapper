@@ -59,6 +59,30 @@ def login():
 
     return render_template('login.html')
 
+@app.route('/register', methods=['GET', 'POST'])
+def register():
+    if request.method == 'POST':
+        username = request.form['username']
+        password = request.form['password']
+
+        db = DBConnection.get_connection()
+        cursor = db.cursor(dictionary=True)
+
+        # Check if username already exists
+        cursor.execute("SELECT * FROM users WHERE username = %s", (username,))
+        existing_user = cursor.fetchone()
+        if existing_user:
+            flash("Username already taken.")
+            return redirect(url_for('register'))
+
+        # Insert the new user (plain text for now — we can add hashing next)
+        cursor.execute("INSERT INTO users (username, password_hash) VALUES (%s, %s)", (username, password))
+        db.commit()
+
+        flash("Registration successful. Please log in.")
+        return redirect(url_for('login'))
+
+    return render_template('register.html')
 
 @app.route('/logout')
 def logout():
