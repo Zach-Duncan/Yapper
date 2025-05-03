@@ -13,8 +13,9 @@ class DBConnection:
         if DBConnection._instance is not None:
             return
         DBConnection._instance = mysql.connector.connect(
-            host="CaptainSpatula.mysql.pythonanywhere-services.com",
-            user="CaptainSpatula",
-            password="Caliber2020!@#",
-            database="CaptainSpatula$Yapper"
+            host="jlg7sfncbhyvga14.cbetxkdyhwsb.us-east-1.rds.amazonaws.com",
+            user="hzlg5whgg9yl0z2d",
+            password="k5ojwdzh9ehc3i3f",
+            database="ouhpgoxvycbb2hpf",
+            port=3306
         )

@@ -5,11 +5,5 @@
 </head>
 <body>
     <h2>Topic Access Statistics</h2>
-    <ul>
-        {% for stat in stats %}
-            <li>{{ stat.title }} — {{ stat.access_count }} accesses</li>
-        {% endfor %}
-    </ul>
-    <a href="{{ url_for('index') }}">Back to Home</a>
 </body>
 </html>

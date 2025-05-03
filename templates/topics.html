@@ -5,14 +5,5 @@
 </head>
 <body>
     <h2>Available Topics</h2>
-    <ul>
-        {% for topic in topics %}
-            <li>
-                {{ topic.title }}
-                <a href="{{ url_for('subscribe', topic_id=topic.id) }}">Subscribe</a>
-            </li>
-        {% endfor %}
-    </ul>
-    <a href="{{ url_for('index') }}">Back to Home</a>
 </body>
 </html>

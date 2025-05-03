@@ -1,143 +1,69 @@
 from flask import Flask, render_template, request, redirect, session, url_for
-from db import DBConnection  # You’ll create this in db.py
-import mysql.connector
+from db import DBConnection
+from Models.user import User
+from Models.topic import Topic
+from Models.message import Message
+from observer import TopicAccessObserver
 
 app = Flask(__name__)
 app.secret_key = 'your_secret_key'
-
-# ---------------- ROUTES ----------------
+observer = TopicAccessObserver()
 
 @app.route('/')
-def index():
+def home():
     if 'user_id' not in session:
         return redirect(url_for('login'))
-
-    conn = DBConnection.get_connection()
-    cursor = conn.cursor(dictionary=True)
-
-    # Get subscribed topics
-    cursor.execute("""
-        SELECT t.id, t.title 
-        FROM topics t
-        JOIN subscriptions s ON t.id = s.topic_id
-        WHERE s.user_id = %s
-    """, (session['user_id'],))
-    topics = cursor.fetchall()
-
-    # For each topic, get last 2 messages
-    messages_by_topic = {}
-    for topic in topics:
-        cursor.execute("""
-            SELECT m.content, m.created_at, u.username 
-            FROM messages m
-            JOIN users u ON u.id = m.user_id
-            WHERE m.topic_id = %s
-            ORDER BY m.created_at DESC
-            LIMIT 2
-        """, (topic['id'],))
-        messages_by_topic[topic['title']] = cursor.fetchall()
-
-    return render_template('home.html', messages_by_topic=messages_by_topic)
-
+    topics = Topic.get_subscribed(session['user_id'])
+    messages = {t['id']: Message.get_recent_by_topic(t['id']) for t in topics}
+    return render_template('home.html', topics=topics, messages=messages)
 
 @app.route('/login', methods=['GET', 'POST'])
 def login():
     if request.method == 'POST':
-        username = request.form['username']
-        password = request.form['password']  # You should hash this in production
-
-        conn = DBConnection.get_connection()
-        cursor = conn.cursor(dictionary=True)
-        cursor.execute("SELECT * FROM users WHERE username = %s AND password_hash = %s", (username, password))
-        user = cursor.fetchone()
-
+        user = User.login(request.form['username'], request.form['password'])
         if user:
             session['user_id'] = user['id']
-            return redirect(url_for('index'))
+            return redirect(url_for('home'))
         else:
-            return "Invalid login"
-
+            return "Invalid credentials, please try again.", 401
     return render_template('login.html')
 
 @app.route('/register', methods=['GET', 'POST'])
 def register():
     if request.method == 'POST':
-        username = request.form['username']
-        password = request.form['password']
-
-        db = DBConnection.get_connection()
-        cursor = db.cursor(dictionary=True)
-
-        # Check if username already exists
-        cursor.execute("SELECT * FROM users WHERE username = %s", (username,))
-        existing_user = cursor.fetchone()
-        if existing_user:
-            flash("Username already taken.")
-            return redirect(url_for('register'))
-
-        # Insert the new user (plain text for now — we can add hashing next)
-        cursor.execute("INSERT INTO users (username, password_hash) VALUES (%s, %s)", (username, password))
-        db.commit()
-
-        flash("Registration successful. Please log in.")
+        User.register(request.form['username'], request.form['password'])
         return redirect(url_for('login'))
-
     return render_template('register.html')
-
-@app.route('/logout')
-def logout():
-    session.clear()
-    return redirect(url_for('login'))
 
 @app.route('/topics')
 def topics():
-    conn = DBConnection.get_connection()
-    cursor = conn.cursor(dictionary=True)
-
-    # Get all topics
-    cursor.execute("SELECT * FROM topics")
-    topics = cursor.fetchall()
-
-    return render_template('topics.html', topics=topics)
-
+    all_topics = Topic.get_all()
+    return render_template('topics.html', topics=all_topics)
 
 @app.route('/subscribe/<int:topic_id>')
 def subscribe(topic_id):
-    conn = DBConnection.get_connection()
-    cursor = conn.cursor()
-    cursor.execute("INSERT IGNORE INTO subscriptions (user_id, topic_id) VALUES (%s, %s)", (session['user_id'], topic_id))
-    conn.commit()
-    return redirect(url_for('index'))
-
+    db = DBConnection.get_connection()
+    cursor = db.cursor()
+    cursor.execute("INSERT INTO subscriptions (user_id, topic_id) VALUES (%s, %s)", (session['user_id'], topic_id))
+    db.commit()
+    return redirect(url_for('topics'))
 
 @app.route('/unsubscribe/<int:topic_id>')
 def unsubscribe(topic_id):
-    conn = DBConnection.get_connection()
-    cursor = conn.cursor()
+    db = DBConnection.get_connection()
+    cursor = db.cursor()
     cursor.execute("DELETE FROM subscriptions WHERE user_id = %s AND topic_id = %s", (session['user_id'], topic_id))
-    conn.commit()
-    return redirect(url_for('index'))
+    db.commit()
+    return redirect(url_for('home'))
 
-
-@app.route('/post/<int:topic_id>', methods=['POST'])
-def post_message(topic_id):
-    content = request.form['content']
-    conn = DBConnection.get_connection()
-    cursor = conn.cursor()
-    cursor.execute("INSERT INTO messages (topic_id, user_id, content) VALUES (%s, %s, %s)", (topic_id, session['user_id'], content))
-    conn.commit()
-    return redirect(url_for('index'))
-
+@app.route('/post', methods=['POST'])
+def post():
+    Message.post_message(session['user_id'], request.form['topic_id'], request.form['content'])
+    return redirect(url_for('home'))
 
 @app.route('/stats')
 def stats():
-    conn = DBConnection.get_connection()
-    cursor = conn.cursor(dictionary=True)
-    cursor.execute("SELECT title, access_count FROM topics")
-    stats = cursor.fetchall()
-    return render_template('stats.html', stats=stats)
-
-# --------------- END ROUTES ----------------
+    return render_template('stats.html', stats=observer.get_stats())
 
 if __name__ == '__main__':
-    app.run()
+    app.run(debug=True)
