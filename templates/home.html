@@ -5,23 +5,5 @@
 </head>
 <body>
     <h2>Welcome to the Message Board</h2>
-    <a href="{{ url_for('topics') }}">Browse Topics</a> | 
-    <a href="{{ url_for('logout') }}">Logout</a> |
-    <a href="{{ url_for('stats') }}">Stats</a>
-    <hr>
-    {% for topic, messages in messages_by_topic.items() %}
-        <h3>{{ topic }}</h3>
-        <form action="{{ url_for('post_message', topic_id=loop.index) }}" method="POST">
-            <textarea name="content" placeholder="Post a message" required></textarea>
-            <button type="submit">Post</button>
-        </form>
-        {% for msg in messages %}
-            <p><strong>{{ msg.username }}</strong>: {{ msg.content }} ({{ msg.created_at }})</p>
-        {% endfor %}
-        <form action="{{ url_for('unsubscribe', topic_id=loop.index) }}" method="GET">
-            <button type="submit">Unsubscribe</button>
-        </form>
-        <hr>
-    {% endfor %}
 </body>
 </html>
