@@ -8,9 +8,7 @@
 <body class="bg-green-50 min-h-screen flex flex-col">
 
     <header class="bg-green-700 text-white p-4 flex justify-between items-center shadow-md">
-        <!-- Logo: Yapper -->
         <div class="text-2xl font-bold">Yapper</div>
-
         <div class="text-xl">
             <i class="fas fa-user"></i>
         </div>
@@ -21,7 +19,6 @@
             <div class="flex justify-between items-center mb-6">
                 <h2 class="text-3xl font-semibold text-green-700">Available Topics</h2>
 
-                <!-- Create Topic Button -->
                 <a href="{{ url_for('create_topic') }}" class="bg-green-600 hover:bg-green-700 text-white py-2 px-6 rounded-lg text-lg font-semibold transition duration-200">
                     Create New Topic
                 </a>
@@ -30,9 +27,11 @@
             <div class="space-y-4">
                 {% for topic in all_topics %}
                     <div class="flex justify-between items-center bg-gray-50 p-4 rounded-lg shadow-sm border-l-4 border-green-600">
-                        <!-- Topic Title and ID -->
                         <div>
-                            <h4 class="text-xl font-medium text-green-700">{{ topic.title }}</h4>
+                            <!-- Link to Topic View Page -->
+                            <a href="{{ url_for('topic_view', topic_id=topic.id) }}" class="text-xl font-medium text-green-700 hover:underline">
+                                {{ topic.title }}
+                            </a>
                             <p class="text-sm text-gray-500">ID: {{ topic.id }}</p>
                         </div>
 
