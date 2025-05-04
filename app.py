@@ -40,6 +40,18 @@ def topics():
         observer.notify(topic['id'])
     return render_template('topics.html', all_topics=all_topics)
 
+@app.route('/topic/<int:topic_id>', methods=['GET'])
+def topic_view(topic_id):
+    if 'user_id' not in session:
+        return redirect(url_for('login'))
+    topic = Topic.get_by_id(topic_id)
+    if not topic:
+        return "Topic not found", 404
+    Topic.increment_access_count(topic_id)
+    is_subscribed = Topic.is_user_subscribed(session['user_id'], topic_id)
+    members = Topic.get_subscribers(topic_id)
+    return render_template('topic_view.html', topic=topic, is_subscribed=is_subscribed, members=members)
+
 @app.route('/create-topic', methods=['GET', 'POST'])
 def create_topic():
     if 'user_id' not in session:
@@ -57,9 +69,9 @@ def create_topic():
 def subscribe(topic_id):
     db = DBConnection.get_connection()
     cursor = db.cursor()
-    cursor.execute("INSERT INTO subscriptions (user_id, topic_id) VALUES (%s, %s)", (session['user_id'], topic_id))
+    cursor.execute("INSERT IGNORE INTO subscriptions (user_id, topic_id) VALUES (%s, %s)", (session['user_id'], topic_id))
     db.commit()
-    return redirect(url_for('topics'))
+    return redirect(url_for('topic_view', topic_id=topic_id))
 
 @app.route('/unsubscribe/<int:topic_id>')
 def unsubscribe(topic_id):
@@ -67,7 +79,7 @@ def unsubscribe(topic_id):
     cursor = db.cursor()
     cursor.execute("DELETE FROM subscriptions WHERE user_id = %s AND topic_id = %s", (session['user_id'], topic_id))
     db.commit()
-    return redirect(url_for('home'))
+    return redirect(url_for('topic_view', topic_id=topic_id))
 
 @app.route('/post', methods=['POST'])
 def post():

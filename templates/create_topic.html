@@ -8,10 +8,8 @@
 <body class="bg-green-50 min-h-screen flex flex-col">
 
     <header class="bg-green-700 text-white p-4 flex justify-between items-center shadow-md">
-        <!-- Logo: Yapper -->
-        <div class="text-2xl font-bold">Yapper</div>
+        <a href="/" class="text-2xl font-bold">Yapper</a>
 
-        <!-- Person Icon (Top Right) -->
         <div class="text-xl">
             <i class="fas fa-user"></i>
         </div>
@@ -25,7 +23,6 @@
             </div>
 
             <form action="{{ url_for('create_topic') }}" method="POST">
-                <!-- Title Input -->
                 <div class="mb-4">
                     <label for="title" class="block text-sm font-medium text-gray-700">Topic Title</label>
                     <input type="text" id="title" name="title" class="mt-2 block w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-600" required>
