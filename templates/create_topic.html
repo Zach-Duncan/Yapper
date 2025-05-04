@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Create Topic | Yapper</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-green-50 min-h-screen flex flex-col">
+
+    <header class="bg-green-700 text-white p-4 flex justify-between items-center shadow-md">
+        <!-- Logo: Yapper -->
+        <div class="text-2xl font-bold">Yapper</div>
+
+        <!-- Person Icon (Top Right) -->
+        <div class="text-xl">
+            <i class="fas fa-user"></i>
+        </div>
+    </header>
+
+    <div class="flex-grow p-6">
+        <div class="bg-white p-6 rounded-xl shadow-lg border border-gray-200">
+            <div class="mb-6">
+                <h2 class="text-3xl font-semibold text-green-700">Create a New Topic</h2>
+                <p class="text-sm text-gray-500">Fill in the details below to create a new topic.</p>
+            </div>
+
+            <form action="{{ url_for('create_topic') }}" method="POST">
+                <!-- Title Input -->
+                <div class="mb-4">
+                    <label for="title" class="block text-sm font-medium text-gray-700">Topic Title</label>
+                    <input type="text" id="title" name="title" class="mt-2 block w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-600" required>
+                </div>
+                <div class="mb-4">
+                    <label for="description" class="block text-sm font-medium text-gray-700">Topic Description</label>
+                    <textarea id="description" name="description" rows="4" class="mt-2 block w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-600" required></textarea>
+                </div>
+
+                <div class="mt-6">
+                    <button type="submit" class="w-full bg-green-600 hover:bg-green-700 text-white py-2 px-4 rounded-lg text-lg font-semibold transition duration-200">
+                        Create Topic
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+</body>
+</html>

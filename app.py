@@ -24,8 +24,6 @@ def login():
         if user:
             session['user_id'] = user['id']
             return redirect(url_for('home'))
-        else:
-            return "Invalid credentials, please try again.", 401
     return render_template('login.html')
 
 @app.route('/register', methods=['GET', 'POST'])
@@ -38,7 +36,22 @@ def register():
 @app.route('/topics')
 def topics():
     all_topics = Topic.get_all()
-    return render_template('topics.html', topics=all_topics)
+    for topic in all_topics:
+        observer.notify(topic['id'])
+    return render_template('topics.html', all_topics=all_topics)
+
+@app.route('/create-topic', methods=['GET', 'POST'])
+def create_topic():
+    if 'user_id' not in session:
+        return redirect(url_for('login'))
+    if request.method == 'POST':
+        title = request.form['title']
+        description = request.form['description']
+        user_id = session['user_id']
+        if title and description and user_id:
+            Topic.create(title, user_id, description)
+            return redirect(url_for('topics'))
+    return render_template('create_topic.html')
 
 @app.route('/subscribe/<int:topic_id>')
 def subscribe(topic_id):
