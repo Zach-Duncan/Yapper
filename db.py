@@ -9,6 +9,7 @@ class DBConnection:
             DBConnection()
         return DBConnection._instance
 
+
     def __init__(self):
         if DBConnection._instance is not None:
             return
