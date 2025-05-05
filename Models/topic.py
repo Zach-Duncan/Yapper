@@ -35,7 +35,14 @@ class Topic:
         """, (user_id, topic_id))
         db.commit()
         return topic_id
-
+        
+    @staticmethod
+    def delete_topic(topic_id):
+        db = DBConnection.get_connection()
+        cursor = db.cursor()
+        cursor.execute("DELETE FROM topics WHERE id = %s", (topic_id,))
+        db.commit()
+    
     @staticmethod
     def get_by_id(topic_id):
         db = DBConnection.get_connection()
