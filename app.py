@@ -1,3 +1,4 @@
+import os
 from flask import Flask, render_template, request, redirect, session, url_for
 from db import DBConnection
 from Models.user import User
@@ -6,7 +7,7 @@ from Models.message import Message
 from observer import TopicAccessObserver
 
 app = Flask(__name__)
-app.secret_key = 'your_secret_key'
+app.secret_key = os.environ.get('SECRET_KEY', 'default_secret_key')
 observer = TopicAccessObserver()
 
 @app.route('/')
@@ -103,6 +104,7 @@ def delete_message(message_id):
         Message.delete_message(message_id)
     return redirect(url_for('topic_view', topic_id=message['topic_id']))
 
-
 if __name__ == '__main__':
-    app.run(debug=True)
+    port = int(os.environ.get("PORT", 5000))
+    app.run(host='0.0.0.0', port=port)
+
