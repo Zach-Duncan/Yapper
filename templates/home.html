@@ -9,12 +9,10 @@
 <body class="bg-green-50 min-h-screen flex flex-col">
     <header class="bg-green-700 text-white p-4 flex justify-between items-center shadow-md relative">
         <a href="/" class="text-2xl font-bold">Yapper</a>
-
         <div class="relative">
             <button id="userIcon" class="text-xl">
                 <i class="fas fa-user"></i>
             </button>
-
             <div id="dropdown" class="absolute right-0 mt-2 w-48 bg-white border border-gray-200 rounded-lg shadow-lg hidden">
                 <ul>
                     <li>
@@ -36,7 +34,12 @@
                         </a>
                         <div class="mt-2 text-sm text-gray-600">
                             {% for message in messages[topic.id] %}
-                                <p>{{ message.content }}</p>
+                                <div class="mb-4">
+                                    <a href="{{ url_for('topic_view', topic_id=topic.id) }}" class="text-sm text-green-600 hover:text-green-800">
+                                        <p>{{ message.content }}</p>
+                                        <p class="text-xs text-gray-500 mt-1">Posted by {{ message.username }}</p>
+                                    </a>
+                                </div>
                             {% endfor %}
                         </div>
                     </div>

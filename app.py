@@ -50,7 +50,8 @@ def topic_view(topic_id):
     Topic.increment_access_count(topic_id)
     is_subscribed = Topic.is_user_subscribed(session['user_id'], topic_id)
     members = Topic.get_subscribers(topic_id)
-    return render_template('topic_view.html', topic=topic, is_subscribed=is_subscribed, members=members)
+    messages = Message.get_all_by_topic(topic_id)
+    return render_template('topic_view.html', topic=topic, is_subscribed=is_subscribed, members=members, messages=messages)
 
 @app.route('/create-topic', methods=['GET', 'POST'])
 def create_topic():
@@ -83,12 +84,25 @@ def unsubscribe(topic_id):
 
 @app.route('/post', methods=['POST'])
 def post():
-    Message.post_message(session['user_id'], request.form['topic_id'], request.form['content'])
-    return redirect(url_for('home'))
+    if 'user_id' not in session:
+        return redirect(url_for('login'))
+    user_id = session['user_id']
+    topic_id = request.form['topic_id']
+    content = request.form['content']
+    if content:
+        Message.post_message(user_id, topic_id, content)
+    return redirect(url_for('topic_view', topic_id=topic_id))
 
-@app.route('/stats')
-def stats():
-    return render_template('stats.html', stats=observer.get_stats())
+@app.route('/delete-message/<int:message_id>', methods=['POST'])
+def delete_message(message_id):
+    if 'user_id' not in session:
+        return redirect(url_for('login'))
+    user_id = session['user_id']
+    message = Message.get_by_id(message_id)
+    if message and message['user_id'] == user_id:
+        Message.delete_message(message_id)
+    return redirect(url_for('topic_view', topic_id=message['topic_id']))
+
 
 if __name__ == '__main__':
     app.run(debug=True)
