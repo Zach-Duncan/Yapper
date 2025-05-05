@@ -67,6 +67,19 @@ def create_topic():
             return redirect(url_for('topics'))
     return render_template('create_topic.html')
 
+@app.route('/delete-topic/<int:topic_id>', methods=['POST'])
+def delete_topic(topic_id):
+    if 'user_id' not in session:
+        return redirect(url_for('login'))
+
+    topic = Topic.get_by_id(topic_id)
+    if not topic or topic['user_id'] != session['user_id']:
+        return "Unauthorized", 403
+
+    Topic.delete_topic(topic_id)
+    return redirect(url_for('topics'))
+
+
 @app.route('/subscribe/<int:topic_id>')
 def subscribe(topic_id):
     db = DBConnection.get_connection()
