@@ -105,6 +105,6 @@ def delete_message(message_id):
     return redirect(url_for('topic_view', topic_id=message['topic_id']))
 
 if __name__ == '__main__':
-    port = int(os.environ.get("PORT", 5000))
-    app.run(host='0.0.0.0', port=port)
+    port = int(os.environ.get("PORT", "10000")) 
+    app.run(host="0.0.0.0", port=port)
 
