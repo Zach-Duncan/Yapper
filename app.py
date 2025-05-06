@@ -52,7 +52,7 @@ def topic_view(topic_id):
     is_subscribed = Topic.is_user_subscribed(session['user_id'], topic_id)
     members = Topic.get_subscribers(topic_id)
     messages = Message.get_all_by_topic(topic_id)
-    return render_template('topic_view.html', topic=topic, is_subscribed=is_subscribed, members=members, messages=messages)
+    return render_template('topic_view.html', topic=topic, is_subscribed=is_subscribed, members=members, messages=messages, user_id=session['user_id'])
 
 @app.route('/create-topic', methods=['GET', 'POST'])
 def create_topic():
