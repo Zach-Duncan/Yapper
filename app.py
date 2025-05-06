@@ -41,25 +41,18 @@ def topics():
         observer.notify(topic['id'])
     return render_template('topics.html', all_topics=all_topics)
 
-@app.route('/topic/<int:topic_id>')
+@app.route('/topic/<int:topic_id>', methods=['GET'])
 def topic_view(topic_id):
     if 'user_id' not in session:
         return redirect(url_for('login'))
-    
     topic = Topic.get_by_id(topic_id)
     if not topic:
         return "Topic not found", 404
-
+    Topic.increment_access_count(topic_id)
     is_subscribed = Topic.is_user_subscribed(session['user_id'], topic_id)
     members = Topic.get_subscribers(topic_id)
     messages = Message.get_all_by_topic(topic_id)
-    
-    return render_template('topic_view.html', 
-                           topic=topic, 
-                           is_subscribed=is_subscribed, 
-                           members=members, 
-                           messages=messages)
-
+    return render_template('topic_view.html', topic=topic, is_subscribed=is_subscribed, members=members, messages=messages)
 
 @app.route('/create-topic', methods=['GET', 'POST'])
 def create_topic():
@@ -114,4 +107,3 @@ def delete_message(message_id):
 if __name__ == '__main__':
     port = int(os.environ.get("PORT", "10000")) 
     app.run(host="0.0.0.0", port=port)
-
