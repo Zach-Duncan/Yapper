@@ -34,17 +34,6 @@
                 <p class="text-lg text-gray-700">{{ topic.description }}</p>
             </div>
 
-            {% if topic.user_id == user_id %}
-                <form action="{{ url_for('delete_topic', topic_id=topic.id) }}" method="POST"
-                      onsubmit="return confirm('Are you sure you want to delete this topic? This will remove all related messages.')"
-                      class="inline-block mt-2">
-                    <button type="submit"
-                            class="bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-lg text-sm">
-                        <i class="fas fa-trash-alt"></i> Delete Topic
-                    </button>
-                </form>
-            {% endif %}
-
             {% if is_subscribed %}
                 <a href="{{ url_for('unsubscribe', topic_id=topic.id) }}"
                    class="inline-block bg-red-600 hover:bg-red-700 text-white px-6 py-3 rounded-lg font-medium text-lg transition-all duration-200 transform hover:scale-105">
@@ -91,17 +80,6 @@
                             <p class="text-xs text-gray-500 mt-1">
                                 Posted by <strong>{{ message.username }}</strong> on {{ message.created_at }}
                             </p>
-
-                            {% if message.user_id == session['user_id'] %}
-                                <form action="{{ url_for('delete_message', message_id=message.id) }}" method="POST"
-                                      onsubmit="return confirm('Are you sure you want to delete this message?');"
-                                      class="absolute top-2 right-2">
-                                    <button type="submit"
-                                            class="text-red-500 hover:text-red-700 text-sm">
-                                        <i class="fas fa-trash-alt"></i> Delete
-                                    </button>
-                                </form>
-                            {% endif %}
                         </li>
                     {% else %}
                         <li class="text-gray-600">No messages yet.</li>
