@@ -24,72 +24,68 @@
     </div>
 </header>
 
-<main class="flex-grow p-8">
-    <div class="max-w-7xl mx-auto grid grid-cols-1 md:grid-cols-2 gap-8">
 
-        <!-- LEFT PANEL -->
-        <div class="bg-white p-8 rounded-2xl shadow-lg border border-gray-200 space-y-6">
-            <div>
-                <h1 class="text-4xl font-extrabold text-green-800 mb-2">{{ topic.title }}</h1>
-                <p class="text-lg text-gray-700">{{ topic.description }}</p>
+    <main class="flex-grow p-8">
+        <div class="max-w-7xl mx-auto grid grid-cols-1 md:grid-cols-2 gap-8">
+
+            <div class="bg-white p-8 rounded-2xl shadow-lg border border-gray-200 space-y-6">
+                <div>
+                    <h1 class="text-4xl font-extrabold text-green-800 mb-2">{{ topic.title }}</h1>
+                    <p class="text-lg text-gray-700">{{ topic.description }}</p>
+                </div>
+
+                {% if is_subscribed %}
+                    <a href="{{ url_for('unsubscribe', topic_id=topic.id) }}"
+                       class="inline-block bg-red-600 hover:bg-red-700 text-white px-6 py-3 rounded-lg font-medium text-lg transition-all duration-200 transform hover:scale-105">
+                        Unsubscribe
+                    </a>
+                {% else %}
+                    <a href="{{ url_for('subscribe', topic_id=topic.id) }}"
+                       class="inline-block bg-green-600 hover:bg-green-700 text-white px-6 py-3 rounded-lg font-medium text-lg transition-all duration-200 transform hover:scale-105">
+                        Subscribe
+                    </a>
+                {% endif %}
+
+                <div>
+                    <h2 class="text-2xl font-semibold text-green-700 mb-4">Members</h2>
+                    <ul class="space-y-2">
+                        {% for user in members %}
+                            <li class="text-lg text-gray-700">{{ user.username }}</li>
+                        {% endfor %}
+                    </ul>
+                </div>
             </div>
 
-            {% if is_subscribed %}
-                <a href="{{ url_for('unsubscribe', topic_id=topic.id) }}"
-                   class="inline-block bg-red-600 hover:bg-red-700 text-white px-6 py-3 rounded-lg font-medium text-lg transition-all duration-200 transform hover:scale-105">
-                    Unsubscribe
-                </a>
-            {% else %}
-                <a href="{{ url_for('subscribe', topic_id=topic.id) }}"
-                   class="inline-block bg-green-600 hover:bg-green-700 text-white px-6 py-3 rounded-lg font-medium text-lg transition-all duration-200 transform hover:scale-105">
-                    Subscribe
-                </a>
-            {% endif %}
+            <div class="bg-white p-8 rounded-2xl shadow-lg border border-gray-200 flex flex-col space-y-6">
+                {% if is_subscribed %}
+                    <form method="POST" action="{{ url_for('post') }}">
+                        <input type="hidden" name="topic_id" value="{{ topic.id }}">
+                        <textarea name="content" rows="4" required
+                                  class="w-full p-4 border-2 border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500"
+                                  placeholder="Write your message here..."></textarea>
+                        <button type="submit"
+                                class="mt-4 w-full bg-green-600 hover:bg-green-700 text-white px-6 py-3 rounded-lg font-medium text-lg transition-all duration-200 transform hover:scale-105">
+                            Post Message
+                        </button>
+                    </form>
+                {% endif %}
 
-            <div>
-                <h2 class="text-2xl font-semibold text-green-700 mb-4">Members</h2>
-                <ul class="space-y-2">
-                    {% for user in members %}
-                        <li class="text-lg text-gray-700">{{ user.username }}</li>
-                    {% endfor %}
-                </ul>
-            </div>
-        </div>
-
-        <!-- RIGHT PANEL -->
-        <div class="bg-white p-8 rounded-2xl shadow-lg border border-gray-200 flex flex-col space-y-6">
-            {% if is_subscribed %}
-                <form method="POST" action="{{ url_for('post') }}">
-                    <input type="hidden" name="topic_id" value="{{ topic.id }}">
-                    <textarea name="content" rows="4" required
-                              class="w-full p-4 border-2 border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500"
-                              placeholder="Write your message here..."></textarea>
-                    <button type="submit"
-                            class="mt-4 w-full bg-green-600 hover:bg-green-700 text-white px-6 py-3 rounded-lg font-medium text-lg transition-all duration-200 transform hover:scale-105">
-                        Post Message
-                    </button>
-                </form>
-            {% endif %}
-
-            <div class="flex-grow overflow-y-auto max-h-[600px] space-y-4">
-                <h2 class="text-2xl font-semibold text-green-700 mb-2">Messages</h2>
-                <ul class="space-y-4">
-                    {% for message in messages %}
-                        <li class="p-4 bg-gray-50 border rounded-lg shadow-sm relative">
-                            <p class="text-gray-800">{{ message.content }}</p>
-                            <p class="text-xs text-gray-500 mt-1">
-                                Posted by <strong>{{ message.username }}</strong> on {{ message.created_at }}
-                            </p>
-                        </li>
-                    {% else %}
-                        <li class="text-gray-600">No messages yet.</li>
-                    {% endfor %}
-                </ul>
+                <div class="flex-grow overflow-y-auto max-h-[600px] space-y-4">
+                    <h2 class="text-2xl font-semibold text-green-700 mb-2">Messages</h2>
+                    <ul class="space-y-4">
+                        {% for message in messages %}
+                            <li class="p-4 bg-gray-50 border rounded-lg shadow-sm">
+                                <p class="text-gray-800">{{ message.content }}</p>
+                                <p class="text-xs text-gray-500 mt-1">Posted by <strong>{{ message.username }}</strong> on {{ message.created_at }}</p>
+                            </li>
+                        {% else %}
+                            <li class="text-gray-600">No messages yet.</li>
+                        {% endfor %}
+                    </ul>
+                </div>
             </div>
         </div>
-    </div>
-</main>
-
+    </main>
 <script>
     const userIcon = document.getElementById('userIcon');
     const dropdown = document.getElementById('dropdown');
