@@ -49,17 +49,16 @@ def topic_view(topic_id):
     topic = Topic.get_by_id(topic_id)
     if not topic:
         return "Topic not found", 404
-    
-    Topic.increment_access_count(topic_id)
+
     is_subscribed = Topic.is_user_subscribed(session['user_id'], topic_id)
     members = Topic.get_subscribers(topic_id)
     messages = Message.get_all_by_topic(topic_id)
-
-    # Debugging: Check the user_id and topic.user_id
-    print(f"Session User ID: {session['user_id']}")
-    print(f"Topic User ID: {topic.user_id}")
-
-    return render_template('topic_view.html', topic=topic, is_subscribed=is_subscribed, members=members, messages=messages, user_id=session['user_id'])
+    
+    return render_template('topic_view.html', 
+                           topic=topic, 
+                           is_subscribed=is_subscribed, 
+                           members=members, 
+                           messages=messages)
 
 
 @app.route('/create-topic', methods=['GET', 'POST'])
@@ -74,19 +73,6 @@ def create_topic():
             Topic.create(title, user_id, description)
             return redirect(url_for('topics'))
     return render_template('create_topic.html')
-
-@app.route('/delete-topic/<int:topic_id>', methods=['POST'])
-def delete_topic(topic_id):
-    if 'user_id' not in session:
-        return redirect(url_for('login'))
-
-    topic = Topic.get_by_id(topic_id)
-    if not topic or topic['user_id'] != session['user_id']:
-        return "Unauthorized", 403
-
-    Topic.delete_topic(topic_id)
-    return redirect(url_for('topics'))
-
 
 @app.route('/subscribe/<int:topic_id>')
 def subscribe(topic_id):
